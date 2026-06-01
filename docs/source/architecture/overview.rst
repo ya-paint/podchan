@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-Architecture
+Overview
 ============
 
 Overview
@@ -136,13 +135,3 @@ Future Extensions
 - Web UI / API server
 
 ただし現時点では Container 管理にスコープを限定する。
-=======
-Index
-============
-
-.. toctree::
-   :maxdepth: 1
-
-   architecture
-   overview
->>>>>>> b17642c (15 create architexture (#18))
