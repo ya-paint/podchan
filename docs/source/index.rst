@@ -14,4 +14,5 @@ documentation for details.
 .. toctree::
    :maxdepth: 1
 
+   architecture/index
    class/modules

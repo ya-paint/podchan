@@ -1,0 +1,255 @@
+@startuml Architecture
+
+package "Domain Layer" 
+{
+    package "ContainerDomain"
+    {
+        package "Value Object"
+        {
+            class ContainerId
+            class ContainerConfig
+            interface ContainerStatus
+
+            class CreatedStatus
+            class RunningStatus
+            class PausedStatus
+            class StoppedStatus
+
+            ContainerStatus <-- CreatedStatus
+            ContainerStatus <-- RunningStatus
+            ContainerStatus <-- PausedStatus
+            ContainerStatus <-- StoppedStatus
+
+            note right of ContainerId
+            Container識別用のID
+            end note
+            note right of ContainerConfig
+            Containerの設定
+            end note
+            note right of ContainerStatus
+            Containerの設定
+            end note
+        }
+
+        package "Entity"
+        {
+            class Container
+
+            Container ..> ContainerId
+            Container ..> ContainerConfig
+            Container ..> ContainerStatus
+
+            note right of Container
+            Containerの単位
+            end note
+        }
+
+        package "Repository"
+        {
+            interface ContainerRepository
+            {
+                save( container : Container )
+                read( container_id : ContainerId )
+                find_all()
+                delete( container_id : ContainerId )
+            }
+            
+            ContainerRepository ..> Container
+            ContainerRepository ..> ContainerId
+
+            note right of ContainerRepository
+            ContainerのRepsoitory
+            end note
+        }
+
+        package "Runtime"
+        {
+            interface ContainerRuntime
+            {
+                create(container : Container) -> None
+                start(container_id : ContainerId) -> None
+                stop(container_id : ContainerId) -> None
+                restart(container_id : ContainerId) -> None
+                delete(container_id : ContainerId) -> None
+                list_containers() -> Array[Container]
+                inspect(container_id: ContainerId) -> Container
+            }
+
+            ContainerRuntime ..> ContainerId
+            ContainerRuntime ..> Container
+
+            note right of ContainerRuntime
+            Containerを直接操作するインターフェース
+            updateを行った場合、現在のContainerの情報を読み取って
+            イベントを発行する
+            end note
+        }
+
+        package "Event"
+        {
+            interface ContainerEvent
+            class ContainerStatusChangedEvent
+            class ContainerCreatedEvent
+            class ContainerDeletedEvent
+            
+            interface ContainerEventListener
+            {
+                on_event( event: ContainerEvent )
+            }
+            
+            ContainerEvent <-- ContainerStatusChangedEvent
+            ContainerEvent <-- ContainerCreatedEvent
+            ContainerEvent <-- ContainerDeletedEvent
+            ContainerEventListener ..> ContainerEvent
+            
+            ContainerStatusChangedEvent ..> Container
+            ContainerCreatedEvent ..> ContainerId
+            ContainerDeletedEvent ..> ContainerId
+
+            note right of ContainerEvent
+            Containerに関係する抽象イベント
+            end note
+            note right of ContainerEventListener
+            ContainerStatusEventを受け取るリスナー
+            end note
+            note right of ContainerStatusChangedEvent
+            Containerの状態が変化した際のイベント
+            end note
+            note right of ContainerCreatedEvent
+            Containerが作成された際のイベント
+            end note
+            note right of ContainerDeletedEvent
+            Containerが削除された際のイベント
+            end note
+        }
+
+        package "Service"
+        {
+            class ContainerLifecycleService
+            {
+                runtime : ContainerRuntime
+                start( container : Container )
+                stop( container : Container )
+                restart( container : Container )
+                delete( container : Container )
+                sync_all()
+                sync_container(container_id : ContainerId)
+                subscribe( listener: ContainerEventListener )
+                unsubscribe( listener: ContainerEventListener )
+            }
+            
+            ContainerLifecycleService ..> Container
+            ContainerLifecycleService ..> ContainerId
+            ContainerLifecycleService ..> ContainerStatus
+            ContainerLifecycleService ..> ContainerRepository
+            ContainerLifecycleService ..> ContainerRuntime
+            ContainerLifecycleService ..> ContainerEvent
+            ContainerLifecycleService ..> ContainerEventListener
+
+            note right of ContainerLifecycleService
+            Containerを操作するService
+            end note
+        }
+    }
+
+    note right of "ContainerDomain"
+    ContainerのDomain領域
+    Containerが更新された際、DomainEventの発行を行う
+    end note
+}
+
+package "Infrastructure Layer"
+{
+    package "Podman"
+    {
+        class PodmanRuntime
+
+        PodmanRuntime --> ContainerRuntime
+
+        note right of "PodmanRuntime"
+        Podman CLIを利用してPodmanを操作する
+        end note
+    }
+    package "Memory"
+    {
+        class ContainerInMemoryRepository
+
+        ContainerInMemoryRepository --> ContainerRepository
+
+        note right of "ContainerRepository"
+        Podman CLIを利用してPodmanを操作する
+        end note
+    }
+}
+
+package "Application Layer"
+{
+    package "ContainerApplication"
+    {
+        package "Data Transfer Object"
+        {
+            class ContainerData
+
+            note right of "ContainerData"
+            Containerをプリミティブな型で再構成する
+            end note
+        }
+        package "Event"
+        {
+            interface ContainerApplicationEvent
+            {
+                __init__( container_data : ContainerData )
+            }
+
+            interface ContainerApplicationEventListener
+            {
+                on_event( event: ContainerApplicationEvent )
+            }
+
+            ContainerApplicationEvent ..> ContainerData
+
+            note right of ContainerApplicationEvent
+            Applicationとしてコンテナのイベント
+            end note
+            note right of ContainerApplicationEventListener
+            Applicationとしてコンテナのイベントリスナー
+            end note
+        }
+        package "ApplicationPackage"
+        {
+            interface ContainerApplicationPackage
+            {
+                runtime : ContainerRuntime
+                container_lifecycle_service : ContainerLifecycleService
+                container_repository : ContainerRepository
+            }
+
+            note right of "ContainerApplicationPackage"
+            Applicationを利用するInterfaceにDomainを触らせず
+            必要な情報を加えるラッパーインターフェース
+            end note
+        }
+
+        class ContainerApplication
+        {
+            runtime : ContainerRuntime
+            container_lifecycle_service : ContainerLifecycleService
+            container_repository : ContainerRepository
+
+            __init__( app_package : ContainerApplicationPackage )
+        }
+
+        ContainerApplication ..> ContainerApplicationPackage
+        ContainerApplication ..> ContainerRuntime
+        ContainerApplication ..> ContainerLifecycleService
+        ContainerApplication ..> ContainerRepository
+        ContainerApplication ..> ContainerApplicationEvent
+        ContainerApplication ..> ContainerApplicationEventListener
+    }
+}
+
+package "Inerface Layer"
+{
+}
+
+@enduml
