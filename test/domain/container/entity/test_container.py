@@ -79,6 +79,16 @@ def test_config():
 
     assert container.config == config
 
+def test_status():
+    config = create_status()
+
+    container = Container(
+        container_id=ContainerId("abc"),
+        container_config=create_status(),
+        container_status=config,
+    )
+
+    assert container.config == config
 
 def test_change_config():
     old_config = ContainerConfig(

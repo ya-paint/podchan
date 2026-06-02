@@ -27,8 +27,8 @@ class Container:
         return self._config
 
     @property
-    def status(self) -> ContainerConfig:
-        return self._config
+    def status(self) -> ContainerStatus:
+        return self._status
     
     def change_config(
         self,
