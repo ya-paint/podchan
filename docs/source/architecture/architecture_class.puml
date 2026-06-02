@@ -28,10 +28,10 @@ package "Domain"
             ' 実行中
             class RunningStatus
             ' 停止中
-            class StopedStatus
+            class StoppedStatus
 
             PodchanContainerStatus <-- RunningStatus
-            PodchanContainerStatus <-- StopedStatus
+            PodchanContainerStatus <-- StoppedStatus
 
             note right of "PodchanContainerId"
             PodchanのコンテナのID
