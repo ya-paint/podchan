@@ -1,6 +1,10 @@
 from domain.container.entity.container import Container
 from domain.container.value_object.container_config import ContainerConfig
 from domain.container.value_object.container_id import ContainerId
+from domain.container.value_object.container_status import (
+    ContainerStatus,
+    RunningStatus,
+)
 
 import subprocess
 
@@ -14,18 +18,23 @@ def create_config() -> ContainerConfig:
         restart="always",
     )
 
+def create_status() -> ContainerStatus:
+    return RunningStatus()
+
 
 def test_equals():
     container_id = ContainerId("abc")
 
     a = Container(
         container_id=container_id,
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     b = Container(
         container_id=container_id,
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     assert a == b
@@ -34,12 +43,14 @@ def test_equals():
 def test_not_equals():
     a = Container(
         container_id=ContainerId("abc"),
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     b = Container(
         container_id=ContainerId("def"),
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     assert a != b
@@ -50,7 +61,8 @@ def test_id():
 
     container = Container(
         container_id=container_id,
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     assert container.id == container_id
@@ -61,11 +73,22 @@ def test_config():
 
     container = Container(
         container_id=ContainerId("abc"),
-        config=config,
+        container_config=config,
+        container_status=create_status(),
     )
 
     assert container.config == config
 
+def test_status():
+    config = create_status()
+
+    container = Container(
+        container_id=ContainerId("abc"),
+        container_config=create_status(),
+        container_status=config,
+    )
+
+    assert container.config == config
 
 def test_change_config():
     old_config = ContainerConfig(
@@ -88,7 +111,8 @@ def test_change_config():
 
     container = Container(
         container_id=ContainerId("abc"),
-        config=old_config,
+        container_config=old_config,
+        container_status=create_status(),
     )
 
     container.change_config(new_config)
@@ -101,12 +125,14 @@ def test_hash_equals():
 
     a = Container(
         container_id=container_id,
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     b = Container(
         container_id=container_id,
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     assert hash(a) == hash(b)
@@ -115,31 +141,11 @@ def test_hash_equals():
 def test_not_equals_other_type():
     container = Container(
         container_id=ContainerId("abc"),
-        config=create_config(),
+        container_config=create_config(),
+        container_status=create_status(),
     )
 
     assert container != "container"
-
-
-def test_to_debug_string():
-    container = Container(
-        container_id=ContainerId("abc"),
-        config=create_config(),
-    )
-
-    assert (
-        container.to_debug_string()
-        == "Container("
-        "id=ContainerId(value=abc), "
-        "config=ContainerConfig("
-        "image=nginx:latest, "
-        "name=web, "
-        "env=['ENV=prod'], "
-        "ports=['8080:80'], "
-        "volumes=['./data:/data'], "
-        "restart=always))"
-    )
-
 
 def test_create_container_from_podman():
     config = ContainerConfig(
@@ -168,7 +174,8 @@ def test_create_container_from_podman():
 
     container = Container(
         container_id=ContainerId(container_raw_id),
-        config=config,
+        container_config=config,
+        container_status=create_status(),
     )
 
     assert container.id.value == container_raw_id

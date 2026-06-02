@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from src.domain.container.entity.container import Container
-from src.domain.container.value_object.container_id import ContainerId
-from src.domain.container.value_object.container_config import ContainerConfig
+from domain.container.entity.container import Container
+from domain.container.value_object.container_id import ContainerId
+from domain.container.value_object.container_config import ContainerConfig
 
 
 class ContainerRuntime(ABC):
