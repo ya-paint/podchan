@@ -1,5 +1,6 @@
 from domain.container.value_object.container_id import ContainerId
 from domain.container.value_object.container_config import ContainerConfig
+from domain.container.value_object.container_status import ContainerStatus
 
 
 class Container:
@@ -10,10 +11,12 @@ class Container:
     def __init__(
         self,
         container_id: ContainerId,
-        config: ContainerConfig,
+        container_config: ContainerConfig,
+        container_status: ContainerStatus,
     ):
         self._id = container_id
-        self._config = config
+        self._config = container_config
+        self._status = container_status
 
     @property
     def id(self) -> ContainerId:
@@ -22,6 +25,10 @@ class Container:
     @property
     def config(self) -> ContainerConfig:
         return self._config
+
+    @property
+    def status(self) -> ContainerStatus:
+        return self._status
     
     def change_config(
         self,
@@ -33,7 +40,8 @@ class Container:
         return (
             "Container("
             f"id={self._id.to_debug_string()}, "
-            f"config={self._config.to_debug_string()}"
+            f"config={self._config.to_debug_string()}, "
+            f"status={self._status.to_debug_string()}, "
             ")"
         )
 
