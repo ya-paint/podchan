@@ -16,9 +16,9 @@ def test_podman_runtime_start_real():
         PodchanContainerConfig("nginx"),
     )
 
-    runtime = PodmanContainerRuntime(container)
+    runtime = PodmanContainerRuntime()
 
-    runtime.start()
+    runtime.start(container)
 
     # 実Podmanなので状態だけ確認
     assert isinstance(container.status, RunningStatus)
@@ -30,8 +30,8 @@ def test_podman_runtime_stop_real():
         PodchanContainerConfig("nginx"),
     )
 
-    runtime = PodmanContainerRuntime(container)
+    runtime = PodmanContainerRuntime()
 
-    runtime.stop()
+    runtime.stop(container)
 
     assert isinstance(container.status, StoppedStatus)

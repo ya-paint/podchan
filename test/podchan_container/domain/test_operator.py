@@ -19,19 +19,18 @@ from podchan_container.domain.operator import PodchanContainerOperator
 # Fake Runtime
 # -------------------------
 class FakeRuntime(PodchanContainerRuntime):
-    def __init__(self, container):
-        super().__init__(container)
+    def __init__(self):
         self.started = False
         self.stopped = False
         self.synced = False
 
-    def start(self):
+    def start(self, container):
         self.started = True
 
-    def stop(self):
+    def stop(self, container):
         self.stopped = True
 
-    def sync(self):
+    def sync(self, container):
         self.synced = True
 
 
@@ -57,7 +56,7 @@ def test_operator_start_event():
         PodchanContainerConfig("nginx"),
     )
 
-    runtime = FakeRuntime(container)
+    runtime = FakeRuntime()
     operator = PodchanContainerOperator(container, runtime)
 
     listener = FakeListener()
@@ -88,7 +87,7 @@ def test_operator_stop_event():
         PodchanContainerConfig("nginx"),
     )
 
-    runtime = FakeRuntime(container)
+    runtime = FakeRuntime()
     operator = PodchanContainerOperator(container, runtime)
 
     listener = FakeListener()
@@ -117,7 +116,7 @@ def test_operator_unsubscribe():
         PodchanContainerConfig("nginx"),
     )
 
-    runtime = FakeRuntime(container)
+    runtime = FakeRuntime()
     operator = PodchanContainerOperator(container, runtime)
 
     listener = FakeListener()
