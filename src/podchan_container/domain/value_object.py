@@ -10,6 +10,15 @@ class PodchanContainerId:
     def value(self):
         return self._value
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PodchanContainerId):
+            return False
+
+        return self._value == other._value
+
+    def __hash__(self) -> int:
+        return hash(self._value)
+
 class PodchanContainerName:
     def __init__(self, value: str):
         if not value:

@@ -21,6 +21,19 @@ def test_container_id_empty():
     with pytest.raises(ValueError):
         PodchanContainerId("")
 
+def test_same_value_is_equal() -> None:
+    left = PodchanContainerId("container-1")
+    right = PodchanContainerId("container-1")
+
+    assert left == right
+
+
+def test_same_value_has_same_hash() -> None:
+    left = PodchanContainerId("container-1")
+    right = PodchanContainerId("container-1")
+
+    assert hash(left) == hash(right)
+
 
 # -------------------------
 # PodchanContainerName

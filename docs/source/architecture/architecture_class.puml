@@ -166,6 +166,16 @@ package "Infrastructure"
         InfrastructureとしてPodmanを叩く層
         end note
     }
+    package InMemory
+    {
+        class PodchanContainerInMemoryRepository
+        PodchanContainerRepository <-- PodchanContainerInMemoryRepository
+
+        note right of "PodmanContainerRuntime"
+        Domain側の抽象を実装して
+        InfrastructureとしてPodmanを叩く層
+        end note
+    }
 }
 
 ' 現在は実装しない
