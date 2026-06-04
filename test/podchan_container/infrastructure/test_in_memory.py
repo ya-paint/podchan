@@ -51,6 +51,23 @@ def test_delete() -> None:
     assert repository.find_all() == []
 
 
+def test_save_and_exists() -> None:
+    repository = PodchanContainerInMemoryRepository()
+
+    container = PodchanContainer(
+        PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
+        PodchanContainerConfig(
+            image="nginx:latest",
+        ),
+    )
+
+    repository.save(container)
+
+    assert repository.exists(PodchanContainerId("container-1"))
+    assert not repository.exists(PodchanContainerId("container-2"))
+
+
 def test_find_all() -> None:
     repository = PodchanContainerInMemoryRepository()
 

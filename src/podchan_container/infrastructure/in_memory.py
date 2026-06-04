@@ -27,7 +27,13 @@ class PodchanContainerInMemoryRepository(
         container_id: PodchanContainerId,
     ) -> PodchanContainer:
         return self._containers.pop(container_id)
-
+    
+    def exists(
+        self,
+        container_id: PodchanContainerId,
+    ) -> bool:
+        return container_id in self._containers.keys()
+    
     def find(
         self,
         container_id: PodchanContainerId,

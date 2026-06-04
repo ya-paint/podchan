@@ -76,6 +76,7 @@ package "Domain"
                 __init__()
                 save( container : PodchanContainer )
                 delete( id : PodchanContainerId ) -> PodchanContainer
+                exists() -> bool
                 find( id : PodchanContainerId ) -> PodchanContainer
                 find_all() -> List[PodchanContainer]
             }
@@ -269,13 +270,15 @@ package "Application"
         {
             class PodchanContainerApplicationEventPublisher
             {
-                on_event( event : PodchanContainerApplicaitonEvent )
+                __init__( repository : PodchanContainerRepository )
+                on_event( event: PodchanContainerOperatorEvent )
                 subscribe( listener: PodchanContainerApplicaitonEventListener )
                 unsubscribe( listener: PodchanContainerApplicaitonEventListener )
             }
             PodchanContainerApplicationEventPublisher --|> PodchanContainerOperatorEventListener
             PodchanContainerApplicationEventPublisher ..> PodchanContainerApplicaitonEvent
             PodchanContainerApplicationEventPublisher ..> PodchanContainerApplicaitonEventListener
+            PodchanContainerApplicationEventPublisher ..> PodchanContainerRepository
             
             class PodchanContainerAppliation
             {

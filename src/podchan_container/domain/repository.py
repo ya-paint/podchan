@@ -31,6 +31,18 @@ class PodchanContainerRepository(ABC):
         """
 
     @abstractmethod
+    def exists(
+        self,
+        container_id: PodchanContainerId,
+    ) -> bool:
+        """
+        コンテナの存在を確認します。
+
+        Returns:
+            存在する場合はTrue、そうでな場合はFalse
+        """
+
+    @abstractmethod
     def find(
         self,
         container_id: PodchanContainerId,
