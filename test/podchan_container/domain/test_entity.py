@@ -16,13 +16,14 @@ from podchan_container.domain.value_object import (
 def test_initial_state():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 
     assert container.id.value == "id1"
+    assert container.name.value == "name1"
     assert container.config.image == "nginx"
-    assert container.name is None
-    assert container.status is None
+    assert isinstance(container.status,StoppedStatus)
 
 
 # -------------------------
@@ -32,6 +33,7 @@ def test_initial_state():
 def test_change_name_without_status():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 
@@ -41,26 +43,13 @@ def test_change_name_without_status():
 
 
 # -------------------------
-# change_config（状態なしOK）
-# -------------------------
-
-def test_change_config_without_status():
-    container = PodchanContainer(
-        id=PodchanContainerId("id1"),
-        config=PodchanContainerConfig("nginx")
-    )
-
-    with pytest.raises(Exception):
-        container.change_config(PodchanContainerConfig("redis"))
-
-
-# -------------------------
 # RunningStatus: config変更不可
 # -------------------------
 
 def test_change_config_running_status():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 
@@ -77,6 +66,7 @@ def test_change_config_running_status():
 def test_change_config_stopped_status():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 
@@ -93,6 +83,7 @@ def test_change_config_stopped_status():
 def test_change_name_running_status():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 
@@ -109,6 +100,7 @@ def test_change_name_running_status():
 def test_change_name_stopped_status():
     container = PodchanContainer(
         id=PodchanContainerId("id1"),
+        name=PodchanContainerName("name1"),
         config=PodchanContainerConfig("nginx")
     )
 

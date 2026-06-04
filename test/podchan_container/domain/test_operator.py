@@ -53,6 +53,7 @@ def test_operator_start_event():
 
     container = PodchanContainer(
         container_id,
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx"),
     )
 
@@ -84,6 +85,7 @@ def test_operator_stop_event():
 
     container = PodchanContainer(
         container_id,
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx"),
     )
 
@@ -113,6 +115,7 @@ def test_operator_stop_event():
 def test_operator_unsubscribe():
     container = PodchanContainer(
         PodchanContainerId("id1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx"),
     )
 

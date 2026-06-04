@@ -5,6 +5,7 @@ from podchan_container.domain.value_object import (
     PodchanContainerName,
     PodchanContainerConfig,
     PodchanContainerStatus,
+    StoppedStatus
 )
 
 
@@ -12,12 +13,13 @@ class PodchanContainer:
     def __init__(
         self,
         id: PodchanContainerId,
+        name: PodchanContainerName,
         config: PodchanContainerConfig,
     ):
         self._id = id
-        self._name = None
+        self._name = name
         self._config = config
-        self._status: PodchanContainerStatus = None
+        self._status: PodchanContainerStatus = StoppedStatus()
 
     # --------------------
     # change name

@@ -4,6 +4,7 @@ from podchan_container.domain.runtime import PodchanContainerRuntime
 from podchan_container.domain.entity import PodchanContainer
 from podchan_container.domain.value_object import (
     PodchanContainerId,
+    PodchanContainerName,
     PodchanContainerConfig,
 )
 
@@ -33,6 +34,7 @@ class FakeRuntime(PodchanContainerRuntime):
 def test_runtime_start():
     container = PodchanContainer(
         PodchanContainerId("id1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx")
     )
 
@@ -49,6 +51,7 @@ def test_runtime_start():
 def test_runtime_stop():
     container = PodchanContainer(
         PodchanContainerId("id1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx")
     )
 
@@ -65,6 +68,7 @@ def test_runtime_stop():
 def test_runtime_sync():
     container = PodchanContainer(
         PodchanContainerId("id1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig("nginx")
     )
 

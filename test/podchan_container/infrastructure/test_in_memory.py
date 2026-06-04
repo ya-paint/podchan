@@ -2,6 +2,7 @@ from podchan_container.domain.entity import PodchanContainer
 from podchan_container.domain.value_object import (
     PodchanContainerConfig,
     PodchanContainerId,
+    PodchanContainerName
 )
 
 from podchan_container.infrastructure.in_memory import (
@@ -14,6 +15,7 @@ def test_save_and_find() -> None:
 
     container = PodchanContainer(
         PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="nginx:latest",
         ),
@@ -33,6 +35,7 @@ def test_delete() -> None:
 
     container = PodchanContainer(
         PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="nginx:latest",
         ),
@@ -53,6 +56,7 @@ def test_find_all() -> None:
 
     container1 = PodchanContainer(
         PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="nginx:latest",
         ),
@@ -60,6 +64,7 @@ def test_find_all() -> None:
 
     container2 = PodchanContainer(
         PodchanContainerId("container-2"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="redis:latest",
         ),
@@ -81,6 +86,7 @@ def test_save_overwrite_same_id() -> None:
 
     container1 = PodchanContainer(
         PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="nginx:latest",
         ),
@@ -88,6 +94,7 @@ def test_save_overwrite_same_id() -> None:
 
     container2 = PodchanContainer(
         PodchanContainerId("container-1"),
+        PodchanContainerName("name1"),
         PodchanContainerConfig(
             image="redis:latest",
         ),
