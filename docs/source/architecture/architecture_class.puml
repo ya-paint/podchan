@@ -241,10 +241,25 @@ package "Application"
         package "ApplicaitonCommand"
         {
             class PodchanContainerApplicationRegistCommand
+            {
+                __init__(container_id: str,name: str, image: str)
+            }
             class PodchanContainerApplicationDeleteCommand
+            {
+                __init__(container_id: str)
+            }
             class PodchanContainerApplicationStartCommand
+            {
+                __init__(container_id: str)
+            }
             class PodchanContainerApplicationStopCommand
+            {
+                __init__(container_id: str)
+            }
             class PodchanContainerApplicationUpdateCommand
+            {
+                __init__(container_id: str)
+            }
         }
         note right of "ApplicaitonCommand"
         Applicationを使用する（ユースケース）場合のコマンド
