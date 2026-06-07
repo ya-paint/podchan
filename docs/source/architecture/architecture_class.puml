@@ -1,9 +1,10 @@
 @startuml Architecture
 
-package "Domain"
+package "PodchanContainer"
 {
-    package "PodchanContainerDomain"
-    { 
+
+    package "Domain"
+    {
         package "ValueObject"
         {
             class PodchanContainerId
@@ -153,36 +154,32 @@ package "Domain"
             end note
         }
     }
-}
 
-package "Infrastructure"
-{
-    package Podman
+    package "Infrastructure"
     {
-        class PodmanContainerRuntime
-        PodchanContainerRuntime <-- PodmanContainerRuntime
+        package Podman
+        {
+            class PodmanContainerRuntime
+            PodchanContainerRuntime <-- PodmanContainerRuntime
 
-        note right of "PodmanContainerRuntime"
-        Domain側の抽象を実装して
-        InfrastructureとしてPodmanを叩く層
-        end note
+            note right of "PodmanContainerRuntime"
+            Domain側の抽象を実装して
+            InfrastructureとしてPodmanを叩く層
+            end note
+        }
+        package InMemory
+        {
+            class PodchanContainerInMemoryRepository
+            PodchanContainerRepository <-- PodchanContainerInMemoryRepository
+
+            note right of "PodmanContainerRuntime"
+            Domain側の抽象を実装して
+            InfrastructureとしてPodmanを叩く層
+            end note
+        }
     }
-    package InMemory
-    {
-        class PodchanContainerInMemoryRepository
-        PodchanContainerRepository <-- PodchanContainerInMemoryRepository
 
-        note right of "PodmanContainerRuntime"
-        Domain側の抽象を実装して
-        InfrastructureとしてPodmanを叩く層
-        end note
-    }
-}
-
-' 現在は実装しない
-package "Application"
-{
-    package "PodchanContainerApplication"
+    package "Application"
     {
         package "DataTransferObject"
         {
@@ -309,7 +306,29 @@ package "Application"
             end note
         }
     }
+
+    package "Presentation"
+    {
+        package "PodchanWeb"
+        {
+            
+            ' web用のAppEventListner
+            ' Eventで送られてきたデータをjson形式にしてwebsocketで送信する
+            class PodchanWebAppEventListener
+            class PodchanWebSocketInterface
+            {
+                
+            }
+
+            class PodchanWebInterface
+            {
+                ' サーバー開始
+                start()
+                ' サーバー終了
+                stop()
+            }
+        }
+    }
 }
-    
 
 @enduml
