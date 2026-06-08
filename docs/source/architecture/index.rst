@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 Architecture
 ============
 
@@ -137,6 +138,8 @@ Future Extensions
 
 ただし現時点では Container 管理にスコープを限定する。
 =======
+=======
+>>>>>>> 1b4d5cc4483590d70f40a7e6ac1db69285118948
 Index
 ============
 
@@ -145,4 +148,7 @@ Index
 
    architecture
    overview
+<<<<<<< HEAD
 >>>>>>> b17642c (15 create architexture (#18))
+=======
+>>>>>>> 1b4d5cc4483590d70f40a7e6ac1db69285118948
