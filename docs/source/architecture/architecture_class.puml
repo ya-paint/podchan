@@ -1,0 +1,184 @@
+@startuml Architecture
+
+package "Domain"
+{
+    package "PodchanContainerDomain"
+    { 
+        package "ValueObject"
+        {
+            class PodchanContainerId
+            class PodchanContainerName
+            class PodchanContainerConfig
+            {
+                self,
+                image: str
+                ' 開発段階では未実装
+                ' env: list[str]
+                ' ports: list[str]
+                ' volumes: list[str]
+                ' restart: str
+            }
+            interface PodchanContainerStatus
+            {
+                ' 設定値の変更が可能か
+                is_change_config() -> bool
+                ' 名称の変更が可能か
+                is_change_name() -> bool
+            }
+            ' 実行中
+            class RunningStatus
+            ' 停止中
+            class StoppedStatus
+
+            PodchanContainerStatus <-- RunningStatus
+            PodchanContainerStatus <-- StoppedStatus
+
+            note right of "PodchanContainerId"
+            PodchanのコンテナのID
+            end note
+            note right of "PodchanContainerName"
+            Podchanのコンテナの名称
+            end note
+            note right of "PodchanContainerConfig"
+            Podchanのコンテナの設定値
+            end note
+            note right of "PodchanContainerStatus"
+            Podchanのコンテナの状態
+            is_change_configで設定値の変更可否を返す
+            end note
+        }
+
+        package "Entity"
+        {
+            class PodchanContainer
+            {
+                __init__( id : PodchanContainerId , config: PodchanContainerConfig )
+                change_name( config: PodchanContainerName )
+                change_status( status : PodchanContainerStatus )
+                change_config( config: PodchanContainerConfig )
+            }
+
+            PodchanContainer ..> PodchanContainerId
+            PodchanContainer ..> PodchanContainerName
+            PodchanContainer ..> PodchanContainerConfig
+            PodchanContainer ..> PodchanContainerStatus
+
+            note right of "PodchanContainer"
+            Podchanのコンテナの状態を保持し、状態ごとの
+            ルールに基づいてconfigの修正を行う
+            end note
+        }
+
+        package "Runtime"
+        {
+            abstract PodchanContainerRuntime
+            {
+                __init__( container : PodchanContainer )
+                start()
+                stop()
+                sync()
+            }
+
+            PodchanContainerRuntime ..> PodchanContainer
+
+            note right of "PodchanContainerRuntime"
+            Podchanのコンテナを操作するRuntime
+            end note
+        }
+
+        package "OperatorEvent"
+        {
+            ' PodchanContainerOperatorのイベント
+            interface PodchanContainerOperatorEvent
+            ' 開始後に発行されるイベント
+            class PodchanContainerOperatorStartedEvent
+            ' 停止後に発行されるイベント
+            class PodchanContainerOperatorStopedEvent
+
+            ' イベントを取得するリスナー
+            class PodchanContainerOperatorEventListener
+            {
+                on_event( event : PodchanContainerOperatorEvent )
+            }
+
+            PodchanContainerOperatorEvent <-- PodchanContainerStartedEvent
+            PodchanContainerOperatorEvent <-- PodchanContainerStopedEvent
+
+            note right of "PodchanContainerOperatorEvent"
+            PodchanContainerOperatorのイベント
+            end note
+            note right of "PodchanContainerOperatorEventListener"
+            イベントを取得するリスナー
+            end note
+        }
+
+        package "Operator"
+        {
+            class PodchanContainerOperator
+            {
+                __init__( container : PodchanContainer , runtime: PodchanContainerRuntime )
+                start()
+                stop()
+                sync()
+                subscribe( listener: PodchanContainerOperatorEventListener )
+                unsubscribe( listener: PodchanContainerOperatorEventListener )
+            }
+
+            PodchanContainerOperator ..> PodchanContainer
+            PodchanContainerOperator ..> PodchanContainerRuntime
+            PodchanContainerOperator ..> PodchanContainerOperatorEvent
+            PodchanContainerOperator ..> PodchanContainerOperatorEventListener
+
+            note right of "PodchanContainerOperator"
+            Podchanのコンテナを操作するDomain Operator
+            end note
+        }
+    }
+}
+
+package "Infrastructure"
+{
+    package Podman
+    {
+        class PodmanContainerRuntime
+        PodchanContainerRuntime <-- PodmanContainerRuntime
+
+        note right of "PodmanContainerRuntime"
+        Domain側の抽象を実装して
+        InfrastructureとしてPodmanを叩く層
+        end note
+    }
+}
+
+' 現在は実装しない
+' package "Application"
+' {
+'     class PodchanContainerData
+'     {
+'         id
+'         name
+'     }
+'     class PodchanContainerAppliation
+'     {
+'         ' 登録
+'         regist( container_data : PodchanContainerData)
+'         ' 削除
+'         delete( id : str )
+'         ' 起動
+'         start( id : str )
+'         ' 停止
+'         stop( id : str )
+'         ' 同期
+'         update( id : str )
+'     }
+
+'     note right of "PodchanContainerData"
+'     Id,Name,Configを
+'     ラッパーしてApplicationの外に伝えないようにする
+'     end note
+'     note right of "PodchanContainerAppliation"
+'     Containerのユースケースを提供する
+'     end note
+' }
+
+@enduml

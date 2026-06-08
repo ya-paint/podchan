@@ -9,11 +9,13 @@ project = 'podchan'
 author = 'podchan'
 copyright = '2026, podchan'
 language = 'ja'
+plantuml = "java -jar ./../../../.setup/plantuml.jar"
 
 # -- General configuration -----------------------------------------
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinxcontrib.plantuml",
 ]
 
 templates_path = ['_templates']
