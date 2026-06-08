@@ -6,18 +6,15 @@ from podchan_container.domain.entity import PodchanContainer
 
 
 class PodmanContainerRuntime(PodchanContainerRuntime):
-    def __init__(self, container: PodchanContainer):
-        super().__init__(container)
-
     # -------------------------
     # start
     # -------------------------
-    def start(self):
-        container_id = self._container.id.value
+    def start(self, container: PodchanContainer):
+        container_id = container.id.value
 
         # ① 存在確認 → なければ作る
         subprocess.run(
-            ["podman", "create", "--name", container_id, self._container.config.image],
+            ["podman", "create", "--name", container_id, container.config.image],
             check=False,
         )
 
@@ -27,28 +24,28 @@ class PodmanContainerRuntime(PodchanContainerRuntime):
             check=True,
         )
 
-        self.sync()
+        self.sync(container)
 
     # -------------------------
     # stop
     # -------------------------
-    def stop(self):
-        container_id = self._container.id.value
+    def stop(self, container: PodchanContainer):
+        container_id = container.id.value
 
         subprocess.run(["podman", "stop", container_id], check=False)
         subprocess.run(["podman", "rm", container_id], check=False)
 
         from podchan_container.domain.value_object import StoppedStatus
-        self._container.change_status(StoppedStatus())
+        container.change_status(StoppedStatus())
 
     # -------------------------
     # sync
     # -------------------------
-    def sync(self):
+    def sync(self, container: PodchanContainer):
         """
         Podmanの実状態をContainerに反映する
         """
-        container_id = self._container.id.value
+        container_id = container.id.value
 
         result = subprocess.run(
             ["podman", "inspect", container_id],
@@ -64,6 +61,6 @@ class PodmanContainerRuntime(PodchanContainerRuntime):
 
         from podchan_container.domain.value_object import RunningStatus, StoppedStatus
         if state == "running":
-            self._container.change_status(RunningStatus())
+            container.change_status(RunningStatus())
         else:
-            self._container.change_status(StoppedStatus())
+            container.change_status(StoppedStatus())

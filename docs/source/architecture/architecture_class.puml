@@ -1,9 +1,10 @@
 @startuml Architecture
 
-package "Domain"
+package "PodchanContainer"
 {
-    package "PodchanContainerDomain"
-    { 
+
+    package "Domain"
+    {
         package "ValueObject"
         {
             class PodchanContainerId
@@ -69,14 +70,33 @@ package "Domain"
             end note
         }
 
+        package "Repository"
+        {
+            interface PodchanContainerRepository
+            {
+                __init__()
+                save( container : PodchanContainer )
+                delete( id : PodchanContainerId ) -> PodchanContainer
+                exists() -> bool
+                find( id : PodchanContainerId ) -> PodchanContainer
+                find_all() -> List[PodchanContainer]
+            }
+
+            PodchanContainerRepository ..> PodchanContainer
+            PodchanContainerRepository ..> PodchanContainerId
+
+            note right of "PodchanContainerRepository"
+            Podchanのコンテナを保持するインターフェース
+            end note
+        }
+
         package "Runtime"
         {
             abstract PodchanContainerRuntime
             {
-                __init__( container : PodchanContainer )
-                start()
-                stop()
-                sync()
+                start( container : PodchanContainer )
+                stop( container : PodchanContainer )
+                sync( container : PodchanContainer )
             }
 
             PodchanContainerRuntime ..> PodchanContainer
@@ -134,51 +154,181 @@ package "Domain"
             end note
         }
     }
-}
 
-package "Infrastructure"
-{
-    package Podman
+    package "Infrastructure"
     {
-        class PodmanContainerRuntime
-        PodchanContainerRuntime <-- PodmanContainerRuntime
+        package Podman
+        {
+            class PodmanContainerRuntime
+            PodchanContainerRuntime <-- PodmanContainerRuntime
 
-        note right of "PodmanContainerRuntime"
-        Domain側の抽象を実装して
-        InfrastructureとしてPodmanを叩く層
+            note right of "PodmanContainerRuntime"
+            Domain側の抽象を実装して
+            InfrastructureとしてPodmanを叩く層
+            end note
+        }
+        package InMemory
+        {
+            class PodchanContainerInMemoryRepository
+            PodchanContainerRepository <-- PodchanContainerInMemoryRepository
+
+            note right of "PodmanContainerRuntime"
+            Domain側の抽象を実装して
+            InfrastructureとしてPodmanを叩く層
+            end note
+        }
+    }
+
+    package "Application"
+    {
+        package "DataTransferObject"
+        {
+            class PodchanContainerData
+            {
+                ' このクラスはApplicaitonEventListnerが受け取る値にしたい（ドメインをラッパーする目的）
+                __init__( container : PodchanContainer )
+                get_id()
+                get_name()
+                get_image()
+            }
+            PodchanContainerData ..> PodchanContainer
+
+            note right of "PodchanContainerData"
+            Podchanのドメインを外に出さない境界を果たすクラス
+            Id,Name,ConfigをラッパーしてApplicationの外に伝えないようにする
+            end note
+        }
+
+        package "ApplicaitonEvent"
+        {
+            ' PodchanContainerOperatorのイベント
+            abstract PodchanContainerApplicaitonEvent
+            ' 開始後に発行されるイベント
+            class PodchanContainerStartedEvent
+            {
+                __init__( container : PodchanContainer )
+                get_container_data() -> PodchanContainerData
+            }
+            ' 停止後に発行されるイベント
+            class PodchanContainerStopedEvent
+            {
+                __init__( container : PodchanContainer )
+                get_container_data() -> PodchanContainerData
+            }
+
+            ' イベントを取得するリスナー
+            abstract PodchanContainerApplicaitonEventListener
+            {
+                on_event( event : PodchanContainerApplicaitonEvent )
+            }
+
+            PodchanContainerApplicaitonEvent <-- PodchanContainerStartedEvent
+            PodchanContainerData <.. PodchanContainerStartedEvent
+            PodchanContainerApplicaitonEvent <-- PodchanContainerStopedEvent
+            PodchanContainerData <.. PodchanContainerStopedEvent
+            PodchanContainerApplicaitonEvent ..> PodchanContainerApplicaitonEvent
+
+            note right of "PodchanContainerApplicaitonEvent"
+            PodchanContainerApplicationのイベント
+            end note
+            note right of "PodchanContainerApplicaitonEventListener"
+            イベントを取得するリスナー
+            end note
+        }
+
+        package "ApplicaitonCommand"
+        {
+            class PodchanContainerApplicationRegistCommand
+            {
+                __init__(container_id: str,name: str, image: str)
+            }
+            class PodchanContainerApplicationDeleteCommand
+            {
+                __init__(container_id: str)
+            }
+            class PodchanContainerApplicationStartCommand
+            {
+                __init__(container_id: str)
+            }
+            class PodchanContainerApplicationStopCommand
+            {
+                __init__(container_id: str)
+            }
+            class PodchanContainerApplicationUpdateCommand
+            {
+                __init__(container_id: str)
+            }
+        }
+        note right of "ApplicaitonCommand"
+        Applicationを使用する（ユースケース）場合のコマンド
         end note
+
+        package "Applicaiton"
+        {
+            class PodchanContainerApplicationEventPublisher
+            {
+                __init__( repository : PodchanContainerRepository )
+                on_event( event: PodchanContainerOperatorEvent )
+                subscribe( listener: PodchanContainerApplicaitonEventListener )
+                unsubscribe( listener: PodchanContainerApplicaitonEventListener )
+            }
+            PodchanContainerApplicationEventPublisher --|> PodchanContainerOperatorEventListener
+            PodchanContainerApplicationEventPublisher ..> PodchanContainerApplicaitonEvent
+            PodchanContainerApplicationEventPublisher ..> PodchanContainerApplicaitonEventListener
+            PodchanContainerApplicationEventPublisher ..> PodchanContainerRepository
+            
+            class PodchanContainerAppliation
+            {
+                __init__( repository : PodchanContainerRepository , runtime : PodchanContainerRuntime )
+                ' 登録
+                regist( command : PodchanContainerApplicationRegistCommand )
+                ' 削除
+                delete( command : PodchanContainerApplicationDeleteCommand )
+                ' 起動
+                start( command : PodchanContainerApplicationStartCommand )
+                ' 停止
+                stop( command : PodchanContainerApplicationStopCommand )
+                ' 同期
+                update( command : PodchanContainerApplicationUpdateCommand )
+                ' EventListnerの登録、削除
+                subscribe( listener: PodchanContainerApplicaitonEventListener )
+                unsubscribe( listener: PodchanContainerApplicaitonEventListener )
+            }
+            PodchanContainerAppliation ..> "ApplicaitonCommand"
+            PodchanContainerAppliation ..> PodchanContainerRepository
+            PodchanContainerAppliation ..> PodchanContainerApplicaitonEventListener
+            
+            note right of "PodchanContainerApplicationEventPublisher"
+            OperatorEventからAppliationEventを発行する
+            end note
+            note right of "PodchanContainerAppliation"
+            Containerのユースケースを提供する
+            end note
+        }
+    }
+
+    package "Presentation"
+    {
+        package "PodchanWeb"
+        {
+            
+            ' web用のAppEventListner
+            ' Eventで送られてきたデータをjson形式にしてwebsocketで送信する
+            class PodchanWebAppEventListener
+            class PodchanWebSocketInterface
+            {
+                
+            }
+
+            class PodchanWebInterface
+            {
+                ' サーバー開始
+                start()
+                ' サーバー終了
+                stop()
+            }
+        }
     }
 }
-
-' 現在は実装しない
-' package "Application"
-' {
-'     class PodchanContainerData
-'     {
-'         id
-'         name
-'     }
-'     class PodchanContainerAppliation
-'     {
-'         ' 登録
-'         regist( container_data : PodchanContainerData)
-'         ' 削除
-'         delete( id : str )
-'         ' 起動
-'         start( id : str )
-'         ' 停止
-'         stop( id : str )
-'         ' 同期
-'         update( id : str )
-'     }
-
-'     note right of "PodchanContainerData"
-'     Id,Name,Configを
-'     ラッパーしてApplicationの外に伝えないようにする
-'     end note
-'     note right of "PodchanContainerAppliation"
-'     Containerのユースケースを提供する
-'     end note
-' }
 
 @enduml

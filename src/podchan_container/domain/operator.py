@@ -23,7 +23,7 @@ class PodchanContainerOperator:
     # start
     # -------------------------
     def start(self):
-        self._runtime.start()
+        self._runtime.start(self._container)
 
         event = PodchanContainerOperatorStartedEvent(
             self._container.id
@@ -34,7 +34,7 @@ class PodchanContainerOperator:
     # stop
     # -------------------------
     def stop(self):
-        self._runtime.stop()
+        self._runtime.stop(self._container)
 
         event = PodchanContainerOperatorStoppedEvent(
             self._container.id
@@ -45,7 +45,7 @@ class PodchanContainerOperator:
     # sync
     # -------------------------
     def sync(self):
-        self._runtime.sync()
+        self._runtime.sync(self._container)
 
     # -------------------------
     # subscribe
