@@ -1,6 +1,7 @@
 
 from fastapi import WebSocket, WebSocketDisconnect
 import json
+import asyncio
 
 from podchan_container.application.application import PodchanContainerApplication
 from podchan_container.application.application_event import (
@@ -40,6 +41,7 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
 
         if isinstance(event,PodchanContainerStoppedEvent):
             container_data : PodchanContainerData = event.get_container_data()
+            self._send_container_data(container_data)
 
     def _send_container_data(self, container_data : PodchanContainerData):
         
@@ -48,7 +50,7 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
         send_data["name"]   = container_data.get_name()
         send_data["image"]  = container_data.get_image()
 
-        self._websocket.send_text(json.dumps(send_data))
+        asyncio.create_task(self._websocket.send_text(json.dumps(send_data)))
 
 class PodchanWebSocketInterface:
     """
@@ -63,6 +65,11 @@ class PodchanWebSocketInterface:
         self._podchan_app = podchan_app
         self._event_listener = PodchanWebAppEventListener(websocket)
 
+        self._podchan_app.subscribe(self._event_listener)
+
+    def __del__(self):
+        self._podchan_app.unsubscribe(self._event_listener)
+
     async def receive_cycle(self):
         try:
             while True:
@@ -70,7 +77,7 @@ class PodchanWebSocketInterface:
                     text_data = await self._websocket.receive_text()
                     command_data = json.loads(text_data)
                     if isinstance(command_data, dict):
-                        pass
+                        self._command_data_receive(command_data)
                 except json.JSONDecodeError:
                     continue
         except WebSocketDisconnect:
@@ -87,7 +94,12 @@ class PodchanWebSocketInterface:
         
         command_name = command_data["command"]
 
-        if command_name == "regist" and (["container_id","name","image"] in command_data):
+        if (
+            command_name == "regist"
+            and "container_id" in command_data
+            and "name" in command_data
+            and "image" in command_data
+        ):
             command = PodchanContainerApplicationRegistCommand(
                 container_id    = command_data["container_id"],
                 name            = command_data["name"],
@@ -107,7 +119,7 @@ class PodchanWebSocketInterface:
             )
             self._podchan_app.start(command)
 
-        if command_name == "stop" and (["container_id"] in command_data):
+        if command_name == "stop" and ("container_id" in command_data):
             command = PodchanContainerApplicationStopCommand(
                 container_id    = command_data["container_id"],
             )
