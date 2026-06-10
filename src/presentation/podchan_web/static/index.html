@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Podchan WebSocket Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+        }
+
+        #log {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        button {
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+        }
+
+        .send {
+            color: blue;
+        }
+
+        .recv {
+            color: green;
+        }
+
+        .system {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Podchan WebSocket Test</h1>
+
+<div>
+    <button onclick="connect()">接続</button>
+    <button onclick="disconnect()">切断</button>
+</div>
+
+<h2>コマンド送信</h2>
+
+<textarea id="json-input">
+{
+  "command": "start",
+  "container_id": "sample-container"
+}
+</textarea>
+
+<br>
+
+<button onclick="sendMessage()">送信</button>
+
+<button onclick="setCommand('regist')">regist</button>
+<button onclick="setCommand('start')">start</button>
+<button onclick="setCommand('stop')">stop</button>
+<button onclick="setCommand('delete')">delete</button>
+<button onclick="setCommand('update')">update</button>
+
+<h2>ログ</h2>
+
+<div id="log"></div>
+
+<script>
+
+let socket = null;
+
+function log(message, type = "system") {
+    const logDiv = document.getElementById("log");
+
+    const entry = document.createElement("div");
+    entry.className = `log-entry ${type}`;
+
+    const timestamp = new Date().toLocaleTimeString();
+
+    entry.textContent = `[${timestamp}] ${message}`;
+
+    logDiv.appendChild(entry);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function connect() {
+
+    if (socket !== null) {
+        log("既に接続済みです");
+        return;
+    }
+
+    socket = new WebSocket("ws://localhost:8000/ws");
+
+    socket.onopen = () => {
+        log("WebSocket connected");
+    };
+
+    socket.onmessage = (event) => {
+        log(`RECV: ${event.data}`, "recv");
+    };
+
+    socket.onerror = (event) => {
+        log("WebSocket error");
+    };
+
+    socket.onclose = () => {
+        log("WebSocket disconnected");
+        socket = null;
+    };
+}
+
+function disconnect() {
+
+    if (socket === null) {
+        return;
+    }
+
+    socket.close();
+}
+
+function sendMessage() {
+
+    if (socket === null) {
+        log("未接続です");
+        return;
+    }
+
+    const text = document.getElementById("json-input").value;
+
+    try {
+        JSON.parse(text);
+
+        socket.send(text);
+
+        log(`SEND: ${text}`, "send");
+
+    } catch (e) {
+        log(`JSONエラー: ${e.message}`);
+    }
+}
+
+function setCommand(command) {
+
+    let payload = {};
+
+    switch (command) {
+
+        case "regist":
+            payload = {
+                command: "regist",
+                container_id: "sample-container",
+                name: "nginx",
+                image: "nginx:latest"
+            };
+            break;
+
+        case "start":
+            payload = {
+                command: "start",
+                container_id: "sample-container"
+            };
+            break;
+
+        case "stop":
+            payload = {
+                command: "stop",
+                container_id: "sample-container"
+            };
+            break;
+
+        case "delete":
+            payload = {
+                command: "delete",
+                container_id: "sample-container"
+            };
+            break;
+
+        case "update":
+            payload = {
+                command: "update",
+                container_id: "sample-container"
+            };
+            break;
+    }
+
+    document.getElementById("json-input").value =
+        JSON.stringify(payload, null, 2);
+}
+
+</script>
+
+</body>
+</html>
