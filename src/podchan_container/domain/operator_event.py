@@ -10,7 +10,6 @@ from podchan_container.domain.value_object import (
 class PodchanContainerOperatorEvent(ABC):
     pass
 
-
 # -------------------------
 # Started Event
 # -------------------------
@@ -21,7 +20,6 @@ class PodchanContainerOperatorStartedEvent(PodchanContainerOperatorEvent):
     @property
     def container_id(self):
         return self._container_id
-
 
 # -------------------------
 # Stopped Event
@@ -34,10 +32,9 @@ class PodchanContainerOperatorStoppedEvent(PodchanContainerOperatorEvent):
     def container_id(self):
         return self._container_id
 
-
 # -------------------------
 # Listener
 # -------------------------
 class PodchanContainerOperatorEventListener:
     def on_event(self, event: PodchanContainerOperatorEvent):
-        pass
+        raise NotImplementedError()

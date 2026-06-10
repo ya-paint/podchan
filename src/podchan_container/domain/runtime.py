@@ -5,17 +5,14 @@ from podchan_container.domain.entity import PodchanContainer
 
 
 class PodchanContainerRuntime(ABC):
-    def __init__(self, container: PodchanContainer):
-        self._container = container
-
     @abstractmethod
-    def start(self):
+    def start(self, container: PodchanContainer):
         pass
 
     @abstractmethod
-    def stop(self):
+    def stop(self, container: PodchanContainer):
         pass
 
     @abstractmethod
-    def sync(self):
+    def sync(self, container: PodchanContainer):
         pass
