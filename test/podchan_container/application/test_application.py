@@ -81,6 +81,25 @@ def test_regist():
         == "nginx"
     )
 
+    application.regist(
+        PodchanContainerApplicationRegistCommand(
+            container_id="id1",
+            name="container2",
+            image="nginx2",
+        )
+    )
+
+    container = repository.find(
+        PodchanContainerId("id1")
+    )
+
+    assert container.id.value == "id1"
+    assert container.name.value == "container1"
+    assert (
+        container.config.image
+        == "nginx"
+    )
+
 
 def test_delete():
     application, repository, _ = (
@@ -93,6 +112,16 @@ def test_delete():
             name="container1",
             image="nginx",
         )
+    )
+
+    application.delete(
+        PodchanContainerApplicationDeleteCommand(
+            container_id="id1",
+        )
+    )
+
+    assert not repository.exists(
+        PodchanContainerId("id1")
     )
 
     application.delete(
