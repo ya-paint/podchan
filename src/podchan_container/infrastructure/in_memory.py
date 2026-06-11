@@ -25,8 +25,8 @@ class PodchanContainerInMemoryRepository(
     def delete(
         self,
         container_id: PodchanContainerId,
-    ) -> PodchanContainer:
-        return self._containers.pop(container_id)
+    ) -> None:
+        self._containers.pop(container_id)
     
     def exists(
         self,
