@@ -119,10 +119,11 @@ class PodchanContainerApplication:
         self,
         command: PodchanContainerApplicationRegistCommand,
     ) -> None:
+        
+        container_id = PodchanContainerId(command.container_id)
+
         container = PodchanContainer(
-            id=PodchanContainerId(
-                command.container_id
-            ),
+            container_id,
             name=PodchanContainerName(
                 command.name
             ),
@@ -131,17 +132,18 @@ class PodchanContainerApplication:
             ),
         )
 
-        self._repository.save(container)
+        if not self._repository.exists(container_id) :
+            self._repository.save(container)
 
     def delete(
         self,
         command: PodchanContainerApplicationDeleteCommand,
-    ) -> PodchanContainer:
-        return self._repository.delete(
-            PodchanContainerId(
-                command.container_id
-            )
-        )
+    ) -> None:
+        
+        container_id = PodchanContainerId(command.container_id)
+
+        if self._repository.exists(container_id) :
+            self._repository.delete(container_id)
 
     def start(
         self,
