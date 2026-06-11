@@ -49,6 +49,7 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
         send_data["id"]     = container_data.get_id()
         send_data["name"]   = container_data.get_name()
         send_data["image"]  = container_data.get_image()
+        send_data["status"]  = container_data.get_status()
 
         asyncio.create_task(self._websocket.send_text(json.dumps(send_data)))
 
