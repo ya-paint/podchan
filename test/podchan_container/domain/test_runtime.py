@@ -76,3 +76,41 @@ def test_runtime_sync():
     runtime.sync(container)
 
     assert runtime.sync_called is True
+
+import pytest
+
+from podchan_container.domain.runtime import (
+    PodchanContainerRuntimeError,
+    PodchanContainerStartError,
+    PodchanContainerStopError,
+)
+
+
+def test_podchan_container_start_error_is_runtime_error():
+    error = PodchanContainerStartError("start failed")
+
+    assert isinstance(error, PodchanContainerStartError)
+    assert isinstance(error, PodchanContainerRuntimeError)
+    assert isinstance(error, Exception)
+
+
+def test_podchan_container_stop_error_is_runtime_error():
+    error = PodchanContainerStopError("stop failed")
+
+    assert isinstance(error, PodchanContainerStopError)
+    assert isinstance(error, PodchanContainerRuntimeError)
+    assert isinstance(error, Exception)
+
+
+def test_podchan_container_start_error_message():
+    with pytest.raises(PodchanContainerStartError) as exc_info:
+        raise PodchanContainerStartError("start failed")
+
+    assert str(exc_info.value) == "start failed"
+
+
+def test_podchan_container_stop_error_message():
+    with pytest.raises(PodchanContainerStopError) as exc_info:
+        raise PodchanContainerStopError("stop failed")
+
+    assert str(exc_info.value) == "stop failed"
