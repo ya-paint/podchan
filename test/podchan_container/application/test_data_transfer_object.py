@@ -6,6 +6,7 @@ from podchan_container.domain.value_object import (
     PodchanContainerConfig,
     PodchanContainerId,
     PodchanContainerName,
+    RunningStatus,
 )
 
 
@@ -65,3 +66,23 @@ def test_get_image() -> None:
     data = PodchanContainerData(container)
 
     assert data.get_image() == "nginx:latest"
+
+
+def test_get_status() -> None:
+    container = PodchanContainer(
+        PodchanContainerId("container-1"),
+        PodchanContainerName("test-container"),
+        PodchanContainerConfig(
+            image="nginx:latest",
+        )
+    )
+
+    data = PodchanContainerData(container)
+
+    assert data.get_status() == "stop"
+
+    container.change_status(RunningStatus())
+
+    data = PodchanContainerData(container)
+
+    assert data.get_status() == "running"
