@@ -6,6 +6,7 @@ from podchan_container.application.data_transfer_object import (
 from podchan_container.domain.entity import (
     PodchanContainer,
 )
+from podchan_container.domain.value_object import PodchanContainerId
 
 
 class PodchanContainerApplicationEvent(ABC):
@@ -77,3 +78,23 @@ class PodchanContainerStatusEvent(
         self,
     ) -> PodchanContainerData:
         return self._container_data
+
+
+class PodchanContainerErrorEvent(
+    PodchanContainerApplicationEvent
+):
+    def __init__(
+        self,
+        container_id: PodchanContainerId,
+        message: str,
+    ) -> None:
+        self._container_id = container_id.value
+        self._message = message
+
+    @property
+    def container_id(self) -> str :
+        return self._container_id
+
+    @property
+    def message(self) -> str :
+        return self._message
