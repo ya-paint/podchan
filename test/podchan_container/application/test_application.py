@@ -95,13 +95,12 @@ def test_delete():
         )
     )
 
-    deleted = application.delete(
+    application.delete(
         PodchanContainerApplicationDeleteCommand(
             container_id="id1",
         )
     )
 
-    assert deleted.id.value == "id1"
     assert not repository.exists(
         PodchanContainerId("id1")
     )

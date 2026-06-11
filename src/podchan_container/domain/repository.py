@@ -22,7 +22,7 @@ class PodchanContainerRepository(ABC):
     def delete(
         self,
         container_id: PodchanContainerId,
-    ) -> PodchanContainer:
+    ) -> None:
         """
         コンテナを削除します。
 

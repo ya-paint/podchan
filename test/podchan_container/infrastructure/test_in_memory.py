@@ -43,11 +43,11 @@ def test_delete() -> None:
 
     repository.save(container)
 
-    deleted = repository.delete(
+    repository.delete(
         PodchanContainerId("container-1"),
     )
 
-    assert deleted is container
+    assert not repository.exists(PodchanContainerId("container-1"))
     assert repository.find_all() == []
 
 
