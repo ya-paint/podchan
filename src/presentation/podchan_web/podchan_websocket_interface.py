@@ -8,6 +8,7 @@ from podchan_container.application.application_event import (
     PodchanContainerApplicationEvent, 
     PodchanContainerApplicationEventListener,
     PodchanContainerData,
+    PodchanContainerErrorEvent,
     PodchanContainerStartedEvent,
     PodchanContainerStatusEvent,
     PodchanContainerStoppedEvent
@@ -48,6 +49,9 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
             container_data : PodchanContainerData = event.get_container_data()
             self._send_container_data(container_data)
 
+        if isinstance(event,PodchanContainerErrorEvent):
+            self._send_container_data(event)
+
     def _send_container_data(self, container_data : PodchanContainerData):
         
         send_data = {}
@@ -55,6 +59,15 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
         send_data["name"]   = container_data.get_name()
         send_data["image"]  = container_data.get_image()
         send_data["status"]  = container_data.get_status()
+
+        asyncio.create_task(self._websocket.send_text(json.dumps(send_data)))
+
+    def _send_error_message(self, error_event : PodchanContainerErrorEvent):
+        
+        send_data = {}
+        send_data["type"]       = "error"
+        send_data["id"]         = error_event.container_id
+        send_data["message"]    = error_event.message
 
         asyncio.create_task(self._websocket.send_text(json.dumps(send_data)))
 

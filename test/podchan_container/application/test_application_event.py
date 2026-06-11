@@ -3,6 +3,7 @@ import pytest
 from podchan_container.application.application_event import (
     PodchanContainerApplicationEventListener,
     PodchanContainerApplicationEvent,
+    PodchanContainerErrorEvent,
     PodchanContainerStartedEvent,
     PodchanContainerStoppedEvent,
     PodchanContainerStatusEvent,
@@ -55,6 +56,23 @@ def test_started_event_container_data():
     assert (
         container_data.get_status()
         == "running"
+    )
+
+
+def test_error_event_container_data():
+
+    event = PodchanContainerErrorEvent(
+        PodchanContainerId("container-id"),
+        "error message"
+    )
+
+    assert (
+        event.container_id
+        == "container-id"
+    )
+    assert (
+        event.message
+        == "error message"
     )
 
 

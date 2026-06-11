@@ -44,6 +44,28 @@ class PodchanContainerOperatorStatusEvent(PodchanContainerOperatorEvent):
         return self._container_id
 
 # -------------------------
+# Error Event
+# -------------------------
+class PodchanContainerOperatorErrorEvent(
+    PodchanContainerOperatorEvent
+):
+    def __init__(
+        self,
+        container_id: PodchanContainerId,
+        message: str,
+    ):
+        self._container_id = container_id
+        self._message = message
+
+    @property
+    def container_id(self):
+        return self._container_id
+
+    @property
+    def message(self):
+        return self._message
+
+# -------------------------
 # Listener
 # -------------------------
 class PodchanContainerOperatorEventListener:

@@ -8,6 +8,7 @@ from podchan_container.application.application_command import (
 )
 from podchan_container.application.application_event import (
     PodchanContainerApplicationEvent,
+    PodchanContainerErrorEvent,
     PodchanContainerStartedEvent,
     PodchanContainerStatusEvent,
     PodchanContainerStoppedEvent,
@@ -16,6 +17,7 @@ from podchan_container.application.application_event import (
 from podchan_container.domain.entity import PodchanContainer
 from podchan_container.domain.operator import PodchanContainerOperator
 from podchan_container.domain.operator_event import (
+    PodchanContainerOperatorErrorEvent,
     PodchanContainerOperatorEvent,
     PodchanContainerOperatorStartedEvent,
     PodchanContainerOperatorStatusEvent,
@@ -78,6 +80,10 @@ class PodchanContainerApplicationEventPublisher(
                 return PodchanContainerStatusEvent(
                     self._repository.find(event.container_id)
                 )
+        if isinstance(event, PodchanContainerOperatorErrorEvent) :
+            return PodchanContainerErrorEvent(
+                event.container_id, event.message
+            )
 
         return None
 
