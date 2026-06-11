@@ -149,11 +149,13 @@ class PodchanContainerApplication:
         self,
         command: PodchanContainerApplicationStartCommand,
     ) -> None:
-        container = self._repository.find(
-            PodchanContainerId(
-                command.container_id
-            )
-        )
+        
+        container_id = PodchanContainerId(command.container_id)
+
+        if not self._repository.exists(container_id) :
+            return
+        
+        container = self._repository.find(container_id)
 
         operator = PodchanContainerOperator(
             container,
@@ -170,11 +172,13 @@ class PodchanContainerApplication:
         self,
         command: PodchanContainerApplicationStopCommand,
     ) -> None:
-        container = self._repository.find(
-            PodchanContainerId(
-                command.container_id
-            )
-        )
+        
+        container_id = PodchanContainerId(command.container_id)
+
+        if not self._repository.exists(container_id) :
+            return
+        
+        container = self._repository.find(container_id)
 
         operator = PodchanContainerOperator(
             container,
@@ -191,11 +195,13 @@ class PodchanContainerApplication:
         self,
         command: PodchanContainerApplicationUpdateCommand,
     ) -> None:
-        container = self._repository.find(
-            PodchanContainerId(
-                command.container_id
-            )
-        )
+        
+        container_id = PodchanContainerId(command.container_id)
+
+        if not self._repository.exists(container_id) :
+            return
+        
+        container = self._repository.find(container_id)
 
         operator = PodchanContainerOperator(
             container,

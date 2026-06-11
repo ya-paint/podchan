@@ -237,3 +237,48 @@ def test_update():
         runtime.synced[0].id.value
         == "id1"
     )
+
+def test_non_exists_start():
+    application, repository, runtime = (
+        create_application()
+    )
+    try:
+        application.start(
+            PodchanContainerApplicationUpdateCommand(
+                container_id="id1",
+            )
+        )
+    except Exception as e:
+        pytest.fail(
+            f"unexpected exception: {e}"
+        )
+
+def test_non_exists_stop():
+    application, repository, runtime = (
+        create_application()
+    )
+    try:
+        application.stop(
+            PodchanContainerApplicationUpdateCommand(
+                container_id="id1",
+            )
+        )
+    except Exception as e:
+        pytest.fail(
+            f"unexpected exception: {e}"
+        )
+
+def test_non_exists_update():
+    application, repository, runtime = (
+        create_application()
+    )
+    try:
+        application.update(
+            PodchanContainerApplicationUpdateCommand(
+                container_id="id1",
+            )
+        )
+    except Exception as e:
+        pytest.fail(
+            f"unexpected exception: {e}"
+        )
