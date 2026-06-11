@@ -9,6 +9,7 @@ from podchan_container.application.application_event import (
     PodchanContainerApplicationEventListener,
     PodchanContainerData,
     PodchanContainerStartedEvent,
+    PodchanContainerStatusEvent,
     PodchanContainerStoppedEvent
 )
 from podchan_container.application.application_command import (
@@ -40,6 +41,10 @@ class PodchanWebAppEventListener(PodchanContainerApplicationEventListener):
             self._send_container_data(container_data)
 
         if isinstance(event,PodchanContainerStoppedEvent):
+            container_data : PodchanContainerData = event.get_container_data()
+            self._send_container_data(container_data)
+
+        if isinstance(event,PodchanContainerStatusEvent):
             container_data : PodchanContainerData = event.get_container_data()
             self._send_container_data(container_data)
 

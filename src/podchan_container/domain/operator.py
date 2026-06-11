@@ -5,6 +5,7 @@ from podchan_container.domain.runtime import PodchanContainerRuntime
 from podchan_container.domain.operator_event import (
     PodchanContainerOperatorEventListener,
     PodchanContainerOperatorStartedEvent,
+    PodchanContainerOperatorStatusEvent,
     PodchanContainerOperatorStoppedEvent,
 )
 
@@ -46,6 +47,11 @@ class PodchanContainerOperator:
     # -------------------------
     def sync(self):
         self._runtime.sync(self._container)
+
+        event = PodchanContainerOperatorStatusEvent(
+            self._container.id
+        )
+        self._emit(event)
 
     # -------------------------
     # subscribe

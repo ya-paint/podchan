@@ -9,6 +9,7 @@ from podchan_container.domain.value_object import (
 from podchan_container.domain.operator_event import (
     PodchanContainerOperatorStartedEvent,
     PodchanContainerOperatorStoppedEvent,
+    PodchanContainerOperatorStatusEvent,
     PodchanContainerOperatorEventListener,
 )
 
@@ -106,6 +107,38 @@ def test_operator_stop_event():
     event = listener.events[0]
 
     assert isinstance(event, PodchanContainerOperatorStoppedEvent)
+    assert event.container_id.value == "id1"
+
+
+# -------------------------
+# syncイベントテスト
+# -------------------------
+def test_operator_stop_event():
+    container_id = PodchanContainerId("id1")
+
+    container = PodchanContainer(
+        container_id,
+        PodchanContainerName("name1"),
+        PodchanContainerConfig("nginx"),
+    )
+
+    runtime = FakeRuntime()
+    operator = PodchanContainerOperator(container, runtime)
+
+    listener = FakeListener()
+    operator.subscribe(listener)
+
+    operator.sync()
+
+    # runtime確認
+    assert runtime.synced is True
+
+    # event確認
+    assert len(listener.events) == 1
+
+    event = listener.events[0]
+
+    assert isinstance(event, PodchanContainerOperatorStatusEvent)
     assert event.container_id.value == "id1"
 
 
