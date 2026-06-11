@@ -5,6 +5,7 @@ from podchan_container.application.application_event import (
     PodchanContainerApplicationEvent,
     PodchanContainerStartedEvent,
     PodchanContainerStoppedEvent,
+    PodchanContainerStatusEvent,
 )
 from podchan_container.domain.entity import (
     PodchanContainer,
@@ -13,6 +14,7 @@ from podchan_container.domain.value_object import (
     PodchanContainerId,
     PodchanContainerName,
     PodchanContainerConfig,
+    RunningStatus,
 )
 
 
@@ -28,6 +30,7 @@ def create_container() -> PodchanContainer:
 
 def test_started_event_container_data():
     container = create_container()
+    container.change_status(RunningStatus())
 
     event = PodchanContainerStartedEvent(
         container,
@@ -48,6 +51,10 @@ def test_started_event_container_data():
     assert (
         container_data.get_image()
         == "nginx:latest"
+    )
+    assert (
+        container_data.get_status()
+        == "running"
     )
 
 
@@ -73,6 +80,54 @@ def test_stopped_event_container_data():
     assert (
         container_data.get_image()
         == "nginx:latest"
+    )
+    assert (
+        container_data.get_status()
+        == "stop"
+    )
+
+
+def test_status_event_container_data():
+    container = create_container()
+
+    event = PodchanContainerStatusEvent(
+        container,
+    )
+
+    container_data = (
+        event.get_container_data()
+    )
+
+    assert (
+        container_data.get_id()
+        == "container-id"
+    )
+    assert (
+        container_data.get_name()
+        == "container-name"
+    )
+    assert (
+        container_data.get_image()
+        == "nginx:latest"
+    )
+    assert (
+        container_data.get_status()
+        == "stop"
+    )
+
+    container.change_status(RunningStatus())
+
+    event = PodchanContainerStatusEvent(
+        container,
+    )
+
+    container_data = (
+        event.get_container_data()
+    )
+
+    assert (
+        container_data.get_status()
+        == "running"
     )
 
 

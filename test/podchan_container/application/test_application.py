@@ -159,6 +159,32 @@ def test_stop():
     )
 
 
+def test_sync():
+    application, repository, runtime = (
+        create_application()
+    )
+
+    application.regist(
+        PodchanContainerApplicationRegistCommand(
+            container_id="id1",
+            name="container1",
+            image="nginx",
+        )
+    )
+
+    application.stop(
+        PodchanContainerApplicationUpdateCommand(
+            container_id="id1",
+        )
+    )
+
+    assert len(runtime.stopped) == 1
+    assert (
+        runtime.stopped[0].id.value
+        == "id1"
+    )
+
+
 def test_update():
     application, repository, runtime = (
         create_application()

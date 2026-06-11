@@ -33,6 +33,17 @@ class PodchanContainerOperatorStoppedEvent(PodchanContainerOperatorEvent):
         return self._container_id
 
 # -------------------------
+# Status Event
+# -------------------------
+class PodchanContainerOperatorStatusEvent(PodchanContainerOperatorEvent):
+    def __init__(self, container_id: PodchanContainerId):
+        self._container_id = container_id
+
+    @property
+    def container_id(self):
+        return self._container_id
+
+# -------------------------
 # Listener
 # -------------------------
 class PodchanContainerOperatorEventListener:

@@ -60,3 +60,20 @@ class PodchanContainerStoppedEvent(
         self,
     ) -> PodchanContainerData:
         return self._container_data
+
+
+class PodchanContainerStatusEvent(
+    PodchanContainerApplicationEvent
+):
+    def __init__(
+        self,
+        container: PodchanContainer,
+    ) -> None:
+        self._container_data = (
+            PodchanContainerData(container)
+        )
+
+    def get_container_data(
+        self,
+    ) -> PodchanContainerData:
+        return self._container_data
