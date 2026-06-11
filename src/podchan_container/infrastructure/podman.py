@@ -47,19 +47,27 @@ class PodmanContainerRuntime(PodchanContainerRuntime):
         """
         container_id = container.id.value
 
+        from podchan_container.domain.value_object import (
+            RunningStatus,
+            StoppedStatus,
+        )
+
         result = subprocess.run(
             ["podman", "inspect", container_id],
             capture_output=True,
             text=True,
-            check=True,
+            check=False,
         )
 
-        # 最小実装：状態だけ見る（簡略版）
+        # コンテナが存在しない
+        if result.returncode != 0:
+            container.change_status(StoppedStatus())
+            return
+
         data = json.loads(result.stdout)
 
         state = data[0].get("State", {}).get("Status")
 
-        from podchan_container.domain.value_object import RunningStatus, StoppedStatus
         if state == "running":
             container.change_status(RunningStatus())
         else:
