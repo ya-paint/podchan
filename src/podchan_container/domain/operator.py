@@ -3,6 +3,7 @@ from typing import List
 from podchan_container.domain.entity import PodchanContainer
 from podchan_container.domain.runtime import PodchanContainerRuntime
 from podchan_container.domain.operator_event import (
+    PodchanContainerOperatorErrorEvent,
     PodchanContainerOperatorEventListener,
     PodchanContainerOperatorStartedEvent,
     PodchanContainerOperatorStatusEvent,
@@ -24,34 +25,49 @@ class PodchanContainerOperator:
     # start
     # -------------------------
     def start(self):
-        self._runtime.start(self._container)
+        try:
+            self._runtime.start(self._container)
 
-        event = PodchanContainerOperatorStartedEvent(
-            self._container.id
-        )
-        self._emit(event)
+            event = PodchanContainerOperatorStartedEvent(
+                self._container.id
+            )
+            self._emit(event)
+
+        except Exception as e:
+            self._emit_error(str(e))
+            raise
 
     # -------------------------
     # stop
     # -------------------------
     def stop(self):
-        self._runtime.stop(self._container)
+        try:
+            self._runtime.stop(self._container)
 
-        event = PodchanContainerOperatorStoppedEvent(
-            self._container.id
-        )
-        self._emit(event)
+            event = PodchanContainerOperatorStoppedEvent(
+                self._container.id
+            )
+            self._emit(event)
+
+        except Exception as e:
+            self._emit_error(str(e))
+            raise
 
     # -------------------------
     # sync
     # -------------------------
     def sync(self):
-        self._runtime.sync(self._container)
+        try:
+            self._runtime.sync(self._container)
 
-        event = PodchanContainerOperatorStatusEvent(
-            self._container.id
-        )
-        self._emit(event)
+            event = PodchanContainerOperatorStatusEvent(
+                self._container.id
+            )
+            self._emit(event)
+
+        except Exception as e:
+            self._emit_error(str(e))
+            raise
 
     # -------------------------
     # subscribe
@@ -73,3 +89,14 @@ class PodchanContainerOperator:
     def _emit(self, event):
         for listener in self._listeners:
             listener.on_event(event)
+
+    # -------------------------
+    # internal emit error
+    # -------------------------
+    def _emit_error(self, message: str):
+        event = PodchanContainerOperatorErrorEvent(
+            self._container.id,
+            message,
+        )
+
+        self._emit(event)
